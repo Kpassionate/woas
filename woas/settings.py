@@ -75,23 +75,36 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            # 'libraries':{
+            #     'my_customer_tags':  'woas.templatetags.paginator',
+            # }
         },
     },
 ]
 
 WSGI_APPLICATION = 'woas.wsgi.application'
-
+AUTH_USER_MODEL = 'spider.user'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'woas',
+        'HOST': '127.0.0.1',
+        'PORT': 3306,
+        'USER': 'root',
+        'PASSWORD': '123456',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -111,13 +124,74 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+# crawler config
+CRAWLER_DEBUG = False
+CRAWLER_CONFIG = {
+    'scheduler': 'unicrawler:scheduler',
+    'downloader': 'unicrawler:downloader',
+    'extractor': 'unicrawler:extractor',
+    'processor': 'unicrawler:processor',
+    'global_limit_speed': 'unicrawler:global_limit_speed',
+    'antispider': 'unicrawler:antispider'
+}
+CRAWLER_GLOBAL_LIMIT_SPEED = 20 * 1000 # 毫秒
+
+# aliyun oss2
+OSS2_ENABLE = False
+OSS2_CONFIG = {
+    "ACCESS_KEY_ID": "",
+    "ACCESS_KEY_SECRET": "",
+    "ENDPOINT": "",
+    "BUCKET_DOMAIN": "oss-cn-beijing.aliyuncs.com",
+    "BUCKET_NAME": "pythonzone",
+    "IMAGES_PATH": "images/",
+    "VIDEOS_PATH": "videos/",
+    "CDN_DOMAIN": "pystats.bowenpay.com"
+}
+LOGIN_URL = '/admin/login/'
+
+REDIS_OPTIONS = {
+    'host': 'localhost',
+    'port': 6379,
+    'password': '',
+    'db': 4
+}
 
 # Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
+# https://docs.djangoproject.com/en/2.1.7/topics/i18n/
 
 LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'Ashia/Shanghai'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -127,10 +201,28 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 CKEDITOR_UPLOAD_PATH = 'upload/'
 CKEDITOR_IMAGE_BACKEND = 'pillow'
+
+
+SUIT_CONFIG = {
+    'ADMIN_NAME': '微信公众号爬虫',
+    'SHOW_REQUIRED_ASTERISK': True,
+    'CONFIRM_UNSAVED_CHANGES': True,
+    'SEARCH_URL': '',
+    'MENU': (
+        {'label': '账户管理', 'url': 'spider.user'},
+
+        {'label': '公众号', 'url': 'spider.wechat'},
+        {'label': '文章', 'url': 'spider.topic'},
+
+        {'label': '代理', 'url': 'spider.proxy'},
+        {'label': '关键词', 'url': 'spider.word'},
+
+    )
+}

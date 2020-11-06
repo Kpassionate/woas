@@ -18,9 +18,7 @@ def paginator(context, paginated_object_list, adjacent_pages=2):
     """
     page = paginated_object_list.number
     pages = paginated_object_list.paginator.num_pages
-    page_numbers = [n for n in \
-                    range(page - adjacent_pages, page + adjacent_pages + 1) \
-                    if n > 0 and n <= pages]
+    page_numbers = [n for n in range(page - adjacent_pages, page + adjacent_pages + 1) if n > 0 and n <= pages]
     return {
         'params': context.get('params'),
         # 'hits': context['hits'],
@@ -72,4 +70,3 @@ def remove_key(params, key):
     res = copy((params or {}))
     res.pop(key, None)
     return res
-

@@ -13,11 +13,11 @@ from django.shortcuts import render, render_to_response, redirect, get_object_or
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from spider.constants import KIND_DETAIL
-from spider.extractors import download_to_oss
+from utils.constants import KIND_DETAIL
+from utils.extractors import download_to_oss
 from spider.forms import WechatForm, WechatConfigForm
 from spider.models import Wechat, Proxy, Topic, Word
-from woas.util import get_redis
+from utils.redis_util import get_redis
 
 CRAWLER_CONFIG = settings.CRAWLER_CONFIG
 import logging
@@ -50,6 +50,7 @@ def index(request):
     r = get_redis()
     # 获取代理状态
     proxies = Proxy.objects.filter(kind=Proxy.KIND_DOWNLOAD, status=Proxy.STATUS_SUCCESS)[:1]
+    # print(proxies)
     if len(proxies) > 0:
         dt = datetime.now() - proxies[0].update_time
         _proxy_status = '正常' if dt.total_seconds() < 3600 else '异常'
@@ -81,7 +82,7 @@ def add(request):
             messages.success(request, '保存成功.')
             return redirect(reverse('wechat.index'))
         else:
-            print("失败")
+            # print("失败")
             messages.error(request, '添加失败,请重试. 错误: %s' % form.errors)
             return redirect(reverse('wechat.index'))
 
@@ -106,7 +107,7 @@ def edit(request, id_):
             if obj.frequency > 0:
                 obj.next_crawl_time = datetime.now()
             else:
-                print(obj.status)
+                # print(obj.status)
                 if obj.status == Wechat.STATUS_DEFAULT:
                     obj.status = Wechat.STATUS_DISABLE
             obj.save()
@@ -245,7 +246,7 @@ def topic_add(request):
         r.rpush(settings.CRAWLER_CONFIG["downloader"], json.dumps(data))
         messages.success(request, '链接已经提交给爬虫,稍后查看爬取结果.')
     else:
-        print("错误")
+        # print("错误")
         messages.error(request, 'url 错误, 添加失败')
     return redirect(reverse('wechat.topic_list'))
 
@@ -258,7 +259,7 @@ def search_wechat(query):
         }
     else:
         proxies = {}
-    print(proxies)
+    # print(proxies)
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
     }
@@ -329,8 +330,8 @@ def keywords_list(request):
 def proxy_edit(request, id_):
     proxy = get_object_or_404(Proxy, pk=id_)
     if request.method == 'POST':
-        print(proxy.host, request.POST['host'])
-        print(proxy.port, request.POST['port'])
+        # print(proxy.host, request.POST['host'])
+        # print(proxy.port, request.POST['port'])
         if proxy.host != request.POST['host'] or proxy.port != int(request.POST['port']):
             proxy.host = request.POST['host']
             proxy.port = request.POST['port']
@@ -357,7 +358,7 @@ def proxy_status(request):
 def api_search(request):
     query = request.GET.get('query')
     wechats = search_wechat(query)
-    print(wechats)
+    # print(wechats)
     return JsonResponse({
         'ret': 0,
         'data': wechats

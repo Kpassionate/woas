@@ -95,11 +95,22 @@ AUTH_USER_MODEL = 'spider.user'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'woas',
+#         'HOST': '127.0.0.1',
+#         'PORT': 3306,
+#         'USER': 'root',
+#         'PASSWORD': '123456',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'woas',
-        'HOST': '127.0.0.1',
+        'HOST': 'ppxia.work',
         'PORT': 3306,
         'USER': 'root',
         'PASSWORD': '123456',
@@ -197,7 +208,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

@@ -12,3 +12,5 @@ python bin/downloader.py
 python bin/extractor.py
 python bin/processor.py
 python bin/scheduler.py
+
+自定义模板标签时要注意 templatetags需要放在app里面，否则会报错

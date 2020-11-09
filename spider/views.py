@@ -69,6 +69,55 @@ def index(request):
     return render(request, 'wechat/index.html', context=context)
 
 
+def search_wechat(query):
+    p = Proxy.objects.filter(kind=Proxy.KIND_SEARCH, status=Proxy.STATUS_SUCCESS).order_by('?').first()
+    if p:
+        proxies = {
+            'http': 'http://%s:%s' % (p.host, p.port)
+        }
+    else:
+        proxies = {}
+    # print(proxies)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/41.0.2272.118 Safari/537.36'
+    }
+    rsp = requests.get("http://weixin.sogou.com/weixin",
+                       params={"type": 1, "query": query},
+                       proxies=proxies, headers=headers
+                       )
+    rsp.close()
+    rsp.encoding = rsp.apparent_encoding
+    # print rsp.content
+    htmlparser = etree.HTMLParser()
+    tree = etree.parse(StringIO(rsp.text), htmlparser)
+    nodes = tree.xpath('//ul[@class="news-list2"]/li')
+    wechats = []
+    for node in nodes:
+        name = ''.join([x for x in node.find(".//p[@class='tit']/a").itertext() if x not in ["red_beg", "red_end"]])
+        avatar = node.find(".//div[@class='img-box']/a/img").attrib['src']
+        qrcode = node.find(".//div[@class='ew-pop']/span/img").attrib['src']
+        wechatid = node.find(".//label[@name='em_weixinhao']").text
+        intro_node = node.find(".//dl[1]/dd")
+        intro = ''.join([x for x in intro_node.itertext() if x not in ["red_beg", "red_end"]])
+
+        wechats.append({
+            "name": name,
+            "wechatid": wechatid,
+            "avatar": avatar,
+            "qrcode": qrcode,
+            "intro": intro
+        })
+
+    return wechats
+
+
+def search(request):
+    query = request.GET.get('query')
+    wechats = search_wechat(query)
+    return render(request, 'wechat/search_content.html', context={"wechats": wechats})
+
+
 @csrf_exempt
 def add(request):
     if request.method == 'POST':
@@ -99,7 +148,7 @@ def edit(request, id_):
             "wechat": wechat,
             "form": form
         })
-        return render_to_response('wechat/edit.html', context=context)
+        return render(request, 'wechat/edit.html', context=context)
     elif request.method == 'POST':
         form = WechatConfigForm(request.POST, instance=wechat)
         if form.is_valid():
@@ -249,54 +298,6 @@ def topic_add(request):
         # print("错误")
         messages.error(request, 'url 错误, 添加失败')
     return redirect(reverse('wechat.topic_list'))
-
-
-def search_wechat(query):
-    p = Proxy.objects.filter(kind=Proxy.KIND_SEARCH, status=Proxy.STATUS_SUCCESS).order_by('?').first()
-    if p:
-        proxies = {
-            'http': 'http://%s:%s' % (p.host, p.port)
-        }
-    else:
-        proxies = {}
-    # print(proxies)
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36'
-    }
-    rsp = requests.get("http://weixin.sogou.com/weixin",
-                       params={"type": 1, "query": query},
-                       proxies=proxies, headers=headers
-                       )
-    rsp.close()
-    rsp.encoding = rsp.apparent_encoding
-    # print rsp.content
-    htmlparser = etree.HTMLParser()
-    tree = etree.parse(StringIO(rsp.text), htmlparser)
-    nodes = tree.xpath('//ul[@class="news-list2"]/li')
-    wechats = []
-    for node in nodes:
-        name = ''.join([x for x in node.find(".//p[@class='tit']/a").itertext() if x not in ["red_beg", "red_end"]])
-        avatar = node.find(".//div[@class='img-box']/a/img").attrib['src']
-        qrcode = node.find(".//div[@class='ew-pop']/span/img").attrib['src']
-        wechatid = node.find(".//label[@name='em_weixinhao']").text
-        intro_node = node.find(".//dl[1]/dd")
-        intro = ''.join([x for x in intro_node.itertext() if x not in ["red_beg", "red_end"]])
-
-        wechats.append({
-            "name": name,
-            "wechatid": wechatid,
-            "avatar": avatar,
-            "qrcode": qrcode,
-            "intro": intro
-        })
-
-    return wechats
-
-
-def search(request):
-    query = request.GET.get('query')
-    wechats = search_wechat(query)
-    return render(request, 'wechat/search_content.html', context={"wechats": wechats})
 
 
 @login_required

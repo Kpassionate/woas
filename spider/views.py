@@ -66,7 +66,7 @@ def index(request):
 
     })
 
-    return render_to_response('wechat/index.html', context=context)
+    return render(request, 'wechat/index.html', context=context)
 
 
 @csrf_exempt
@@ -153,7 +153,7 @@ def topic_list(request):
         "topics": _objs,
         "params": params
     })
-    return render_to_response('wechat/topic_list.html', context=context)
+    return render(request, 'wechat/topic_list.html', context=context)
 
 
 @login_required
@@ -180,7 +180,7 @@ def topic_available_list(request):
         "topics": _objs,
         "params": params
     })
-    return render_to_response('wechat/topic_available_list.html', context=context)
+    return render(request, 'wechat/topic_available_list.html', context=context)
 
 
 def wechat_topics(request, id_):
@@ -208,14 +208,14 @@ def wechat_topics(request, id_):
         "topics": _objs,
         "params": params
     })
-    return render_to_response('wechat/wechat_topics.html', context=context)
+    return render(request, 'wechat/wechat_topics.html', context=context)
 
 
 @csrf_exempt
 @login_required
 def topic_detail(request, id_):
     topic = get_object_or_404(Topic, pk=id_)
-    return render_to_response('wechat/topic_detail.html', context={"topic": topic})
+    return render(request, 'wechat/topic_detail.html', context={"topic": topic})
 
 
 @csrf_exempt
@@ -296,7 +296,7 @@ def search_wechat(query):
 def search(request):
     query = request.GET.get('query')
     wechats = search_wechat(query)
-    return render_to_response('wechat/search_content.html', context={"wechats": wechats})
+    return render(request, 'wechat/search_content.html', context={"wechats": wechats})
 
 
 @login_required
@@ -323,20 +323,21 @@ def keywords_list(request):
         "keywords": _objs,
         "params": params
     })
-    return render_to_response('wechat/keywords_list.html', context=context)
+    return render(request, 'wechat/keywords_list.html', context=context)
 
 
 @csrf_exempt
 def proxy_edit(request, id_):
     proxy = get_object_or_404(Proxy, pk=id_)
     if request.method == 'POST':
-        # print(proxy.host, request.POST['host'])
-        # print(proxy.port, request.POST['port'])
+        print(proxy.host, request.POST['host'])
+        print(proxy.port, request.POST['port'])
         if proxy.host != request.POST['host'] or proxy.port != int(request.POST['port']):
             proxy.host = request.POST['host']
             proxy.port = request.POST['port']
             proxy.save()
         return HttpResponse('proxy change success')
+    return HttpResponse('WTF')
 
 
 @csrf_exempt

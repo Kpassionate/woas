@@ -4,7 +4,6 @@ __author__ = 'yankai.guan'
 import sys
 import os
 
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'woas.settings'
 import django

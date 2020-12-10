@@ -25,6 +25,10 @@ import logging
 logging.basicConfig()
 
 
+def fist_not_index(request):
+    return redirect(reverse('wechat.index'))
+
+
 @login_required
 def index(request):
     context = {}

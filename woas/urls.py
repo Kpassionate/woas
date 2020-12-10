@@ -22,9 +22,10 @@ from django.conf import settings
 from spider import views
 
 urlpatterns = [
-  path('admin/', admin.site.urls),
-  path(r'', include('ckeditor_uploader.urls')),
-  path(r'index/', views.index, name="wechat.index"),
-  path(r'wechat/', include('spider.urls')),
-  path(r'api/wechat/', include('spider.api_urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('admin/', admin.site.urls),
+    path(r'', include('ckeditor_uploader.urls')),
+    path(r'', views.fist_not_index, name="wechat.not_index"),
+    path(r'index/', views.index, name="wechat.index"),
+    path(r'wechat/', include('spider.urls')),
+    path(r'api/wechat/', include('spider.api_urls')),
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
